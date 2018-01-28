@@ -12,23 +12,37 @@ const httpsOptions = {
 const StellarLedger = require('stellar-ledger-api');
 const bip32Path = "44'/148'/0'";
 
+const StellarSdk = require('stellar-sdk');
+const stellarServer = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+
 app.get('/', (req, res) => {
   res.send('<a href="login">Login here</a>');
 });
 
 app.get('/login', (req, res) => {
-  StellarLedger.comm.create_async(2**31-1).then(function(comm) {
+  StellarLedger.comm.create_async(2**31-1).then((comm) => {
     const api = new StellarLedger.Api(comm);
-    api.connect(function() {
-      api.getPublicKey_async(bip32Path).then(function (result) {
+    api.connect(() => {
+      api.getPublicKey_async(bip32Path).then((result) => {
         res.send('Your public key is ' + result.publicKey);
-      }).catch(function (err) {
-        res.send(err);
+      }).catch((err) => {
+        res.status(400).send(err);
       });
-    }, function(err) {
-      res.send(err);
+    }, (err) => {
+      res.status(500).send(err);
     });
   });
+});
+
+app.get('/info/:publicKey', (req, res) => {
+  stellarServer.accounts()
+    .accountId(req.params.publicKey)
+    .call()
+    .then((result) => {
+      res.send(result);
+    }).catch(() => {
+      res.status(404).end();
+    });
 });
 
 const server = https.createServer(httpsOptions, app).listen(process.env.PORT, () => {

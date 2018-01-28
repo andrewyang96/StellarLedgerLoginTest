@@ -19,6 +19,7 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
-    "stellar-ledger-api": "^2.0.4"
+    "stellar-ledger-api": "^2.0.4",
+    "stellar-sdk": "^0.8.0"
   }
 }
